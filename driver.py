@@ -6,7 +6,7 @@ from feature_extract import *
 from models import svm, random_forest, mlp, logistic_regression, knn, guassian_nb, gradient_boosting, decision_tree
 from preprocess import *
 
-for time_frame in ["d1"]:
+for time_frame in ["d1", "h4"]:
     for pair_curr in ["eurusd", "gbpusd", "audusd", "usdcad"]:
 
         print(time_frame + ": " + pair_curr)

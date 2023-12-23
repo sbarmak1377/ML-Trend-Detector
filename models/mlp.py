@@ -63,10 +63,10 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, x_test_original, save_d
         print("*" * 100)
     with open(save_dir + "best_return.txt", "w") as file:
         for k, v in best_params_return.items():
-            dictionary_content = k + ": " + v + "\n"
+            dictionary_content = str(k) + ": " + str(v) + "\n"
             file.write(dictionary_content)
 
     with open(save_dir + "best_acc.txt", "w") as file:
         for k, v in best_params_acc.items():
-            dictionary_content = k + ": " + v + "\n"
+            dictionary_content = str(k) + ": " + str(v) + "\n"
             file.write(dictionary_content)
