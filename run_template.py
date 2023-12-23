@@ -20,10 +20,10 @@ from feature_extract import *
 from preprocess import *
 
 classifiers = {
-    # 'RandomForest': {'model': RandomForestClassifier(),
-    #                  'params': {'n_estimators': [10, 50, 100]}},
-    # 'GradientBoosting': {'model': GradientBoostingClassifier(),
-    #                      'params': {'n_estimators': [50, 100]}},
+    'RandomForest': {'model': RandomForestClassifier(),
+                     'params': {'n_estimators': [10, 50, 100]}},
+    'GradientBoosting': {'model': GradientBoostingClassifier(),
+                         'params': {'n_estimators': [50, 100]}},
     'SVM': {'model': SVC(),
             'params': {'C': [10, 25, 50, 100], 'kernel': ['linear', 'rbf']}},
     'KNeighbors': {'model': KNeighborsClassifier(),

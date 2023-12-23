@@ -78,14 +78,7 @@ def split_and_normalize(df):
 
     # Replace the `inf` values with `NaN`
     X_train.replace([np.inf, -np.inf], np.nan, inplace=True)
-
-    # Drop the rows that have `NaN` values
-    X_train.dropna(inplace=True)
-    X_train.reset_index(inplace=True)
-
-    # Replace the `inf` values with `NaN`
-
-    X_test.reset_index(inplace=True)
+    X_test.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     column_names = X_train.columns
 
@@ -98,7 +91,7 @@ def split_and_normalize(df):
     X_test_scaled = scaler.transform(X_test)
     X_test_scaled = pd.DataFrame(data=X_test_scaled, columns=column_names)
 
-    return X_train_scaled, X_test_scaled, y_train, y_test
+    return X_train_scaled, X_test_scaled, y_train, y_test, X_test
 
 
 def create_dir_if_not_exist(dir_path):

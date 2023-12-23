@@ -6,58 +6,34 @@ from sklearn.model_selection import KFold
 
 def select_features(X_train, y_train, save_feature_bars_path, threshold=0.9):
     # Train RandomForest and ExtraTreeClassifier
-    rf_classifier = RandomForestClassifier()
     et_classifier = ExtraTreesClassifier()
 
-    rf_classifier.fit(X_train, y_train)
     et_classifier.fit(X_train, y_train)
 
     # Get feature importances from both models
-    rf_feature_importances = rf_classifier.feature_importances_
     et_feature_importances = et_classifier.feature_importances_
-
-    most_important_num = 40
 
     plt.rcParams.update({'font.size': 12})
 
-    feat_et_feature_importances = pd.Series(et_feature_importances, index=X_train.columns).sort_values(ascending=False)
-    fig = feat_et_feature_importances.plot(kind='barh', figsize=(20, 12)).get_figure()
-    fig.suptitle("Top " + str(most_important_num) + " ExtraTree important features")
-    fig.savefig(save_feature_bars_path + "Top " + str(most_important_num) + " ExtraTree important features.png")
-
-    feat_rf_feature_importances = pd.Series(rf_feature_importances, index=X_train.columns).sort_values(ascending=False)
-    fig = feat_rf_feature_importances.plot(kind='barh', figsize=(20, 12)).get_figure()
-    fig.suptitle("Top " + str(most_important_num) + " RandomForest important features")
-    fig.savefig(save_feature_bars_path + "Top " + str(most_important_num) + " RandomForest important features.png")
-
-    # Combine feature importances from both models
-    avg_feature_importances = (rf_feature_importances + et_feature_importances) / 2
-
-    feat_avg_feature_importances = pd.Series(avg_feature_importances, index=X_train.columns).sort_values(
-        ascending=False)
-    fig = feat_avg_feature_importances.plot(kind='barh', figsize=(20, 12)).get_figure()
-    fig.suptitle("Top " + str(most_important_num) + " Avg important features")
-    fig.savefig(save_feature_bars_path + "Top " + str(most_important_num) + " Avg important features.png")
-
     # Sort features based on importance
-    sorted_indices = avg_feature_importances.argsort()[::-1]
+    sorted_indices = et_feature_importances.argsort()[::-1]
 
     # Calculate cumulative importance
-    cumulative_importance = avg_feature_importances[sorted_indices].cumsum()
+    cumulative_importance = et_feature_importances[sorted_indices].cumsum()
 
     # Find the threshold for 80% cumulative importance
     selected_features = X_train.columns[sorted_indices[cumulative_importance <= threshold]]
 
     # Plot feature importance
     plt.figure(figsize=(20, 12))
-    plt.bar(range(len(sorted_indices)), avg_feature_importances[sorted_indices], align="center")
+    plt.bar(range(len(sorted_indices)), et_feature_importances[sorted_indices], align="center")
     plt.xticks(range(len(sorted_indices)), X_train.columns[sorted_indices], rotation=90)
     plt.xlabel("Feature")
     plt.ylabel("Importance")
     plt.title("Selected Feature Importance")
     plt.savefig(save_feature_bars_path + "selected_features.png")
 
-    return selected_features, feat_et_feature_importances, feat_rf_feature_importances, feat_avg_feature_importances
+    return selected_features
 
 
 def reshape_x(x: pd.DataFrame):
