@@ -13,20 +13,21 @@ params_dict = {
     'batch_size': [64, 128, 256],
     'learning_rate': ['adaptive'],
     'max_iter': [1000],
-    'shuffle': [False]}
+    'shuffle': [False],
+    'early_stopping': [True]}
 
 
 def train_and_evaluate(x_train, y_train, x_test, y_test, x_test_original, save_dir):
     if save_dir[-1] != '/':
         save_dir += '/'
     best_acc = 0.0
-    best_return_percent = -10
+    best_return_percent = -999999
     best_params_return = None
     best_params_acc = None
     for params in product(*params_dict.values()):
         test_parameters = dict(zip(params_dict.keys(), params))
         print(f"Parameters: {test_parameters}")
-        save_dir_param = save_dir + str(test_parameters).replace(':', '_').replace('\'', '') + '/'
+        save_dir_param = save_dir + str(test_parameters).replace(':', '_').replace('\'', '').replace(" ", "") + '/'
         create_dir_if_not_exist(save_dir_param)
         classifier = MLPClassifier()
 
@@ -70,3 +71,4 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, x_test_original, save_d
         for k, v in best_params_acc.items():
             dictionary_content = str(k) + ": " + str(v) + "\n"
             file.write(dictionary_content)
+    return best_params_acc

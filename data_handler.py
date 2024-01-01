@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 def read_csv_data(file_path, mode):
@@ -19,7 +19,7 @@ def read_csv_data(file_path, mode):
         # Read data with timestamp and convert to datetime
         columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         df = pd.read_csv(file_path,
-                         dtype={"timestamp": int, "open": float, "high": float, "low": float, "close": float})
+                         dtype={"timestamp": 'int64', "open": float, "high": float, "low": float, "close": float})
         df["Date"] = pd.to_datetime(df["timestamp"], unit="ms")
         df = df[["Date", "open", "high", "low", "close", "volume"]]
 
@@ -51,7 +51,7 @@ def create_label_column(df):
         (df['Close_10'] < df['Close_5']) & (df['Close_5'] < df['Close'])
     ]
 
-    choices = [1, -1]
+    choices = [1, 2]
 
     df['Trend'] = np.select(conditions, choices, default=0)
 
@@ -66,24 +66,46 @@ def create_label_column(df):
     return df
 
 
-def split_and_normalize(df):
+def split_and_normalize_val(df, val_split_date, test_split_date):
     # Splitting the DataFrame into features (X) and target (y)
-    X = df.drop('Trend', axis=1)
-    y = df['Trend']
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_train = df[df['Date'] < val_split_date]
+    y_train = df_train['Trend']
+    X_train = df_train.drop(['Date', 'Trend'], axis=1)
 
-    # Splitting the data into 90% train and 10% test without shuffling
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=False)
-    X_train.drop('Date', axis=1, inplace=True)
-    X_test.drop('Date', axis=1, inplace=True)
-
-    # Replace the `inf` values with `NaN`
-    X_train.replace([np.inf, -np.inf], np.nan, inplace=True)
-    X_test.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_val = df[(df['Date'] >= val_split_date) & (df['Date'] < test_split_date)]
+    y_val = df_val['Trend']
+    X_val = df_val.drop(['Date', 'Trend'], axis=1)
 
     column_names = X_train.columns
 
     # Using StandardScaler to normalize train feature vector
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_train_scaled = pd.DataFrame(data=X_train_scaled, columns=column_names)
+
+    # Applying the same transformation to test feature vector
+    X_val_scaled = scaler.transform(X_val)
+    X_val_scaled = pd.DataFrame(data=X_val_scaled, columns=column_names)
+
+    return X_train_scaled, X_val_scaled, y_train, y_val, X_val
+
+
+def split_and_normalize_test(df, test_split_date):
+    # Splitting the DataFrame into features (X) and target (y)
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_train = df[df['Date'] < test_split_date]
+    y_train = df_train['Trend']
+    X_train = df_train.drop(['Date', 'Trend'], axis=1)
+
+    df_test = df[df['Date'] >= test_split_date]
+    y_test = df_test['Trend']
+    X_test = df_test.drop(['Date', 'Trend'], axis=1)
+
+    column_names = X_train.columns
+
+    # Using StandardScaler to normalize train feature vector
+    scaler = MinMaxScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_train_scaled = pd.DataFrame(data=X_train_scaled, columns=column_names)
 

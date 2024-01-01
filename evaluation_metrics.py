@@ -42,7 +42,8 @@ def calculate_and_save_metrics(y_pred, y_test, y_pred_proba, save_dir):
 
         # Save the plot as a PNG file
         plt.savefig(save_dir + 'roc_auc_class_{}.png'.format(i))
-        plt.close()
+        plt.clf()
+        plt.close('all')
     return accuracy
 
 
@@ -51,21 +52,22 @@ def calculate_and_save_return(x_test_original, y_prediction, save_dir, init_curr
     full_data['Prediction'] = y_prediction
     full_data.to_csv(save_dir + 'exchange_data.csv', index=False, sep='\t')
     curr_1, curr_2, rate = init_curr_1, init_curr_2, trade_rate
-    index = 0
+    index = 2
     current_action = 0
-    while index < len(full_data) - 1:
-        pred_0 = int(full_data.iloc[index]['Prediction'])
-        pred_1 = int(full_data.iloc[index + 1]['Prediction'])
+    while index < len(full_data):
+        pred_0 = int(full_data.iloc[index - 2]['Prediction'])
+        pred_1 = int(full_data.iloc[index - 1]['Prediction'])
+        pred_2 = int(full_data.iloc[index]['Prediction'])
 
-        if pred_0 == pred_1:
-            if pred_0 == 1 and current_action != 1:
+        if pred_2 == pred_1 and pred_1 == pred_0:
+            if pred_2 == 1 and current_action != 1:
                 current_action = 1
                 if curr_2 > 0:
                     exchange = curr_2 * rate
                     curr_2 -= exchange
                     curr_1 += exchange * 1.0 / full_data.iloc[index]['Close']
 
-            elif pred_0 == -1 and current_action != -1:
+            elif pred_2 == 2 and current_action != 2:
                 current_action = -1
                 if curr_1 > 0:
                     exchange = curr_1 * rate

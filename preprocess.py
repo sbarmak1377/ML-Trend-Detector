@@ -32,6 +32,9 @@ def select_features(X_train, y_train, save_feature_bars_path, threshold=0.9):
     plt.ylabel("Importance")
     plt.title("Selected Feature Importance")
     plt.savefig(save_feature_bars_path + "selected_features.png")
+    with open(save_feature_bars_path + "selected_features.txt", "w") as f:
+        f.write(str(et_feature_importances[sorted_indices]) + "\n")
+        f.write(str(X_train.columns[sorted_indices]))
 
     return selected_features
 
